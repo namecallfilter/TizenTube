@@ -3,6 +3,7 @@ import { enablePip } from './features/pictureInPicture.js';
 import modernUI, { optionShow } from './ui/settings.js';
 import { speedSettings } from './ui/speedUI.js';
 import { showToast, buttonItem } from './ui/ytUI.js';
+import getCurrentChannelId from "./getCurrentChannelId.js"
 
 export default function resolveCommand(cmd, _) {
     // resolveCommand function is pretty OP, it can do from opening modals, changing client settings and way more.
@@ -147,6 +148,23 @@ function customAction(action, parameters) {
         case 'SET_PLAYER_SPEED':
             const speed = Number(parameters);
             document.querySelector('video').playbackRate = speed;
+
+            if (configRead('enablePerChannelSpeedPersistence')) {
+                const channelId = getCurrentChannelId();
+                if (channelId) {
+                    const channelSpeeds = configRead('channelSpeeds') || {};
+
+                    if (speed === 1) {
+                        if (channelSpeeds[channelId]) {
+                            delete channelSpeeds[channelId];
+                            configWrite('channelSpeeds', channelSpeeds);
+                        }
+                    } else {
+                        channelSpeeds[channelId] = speed;
+                        configWrite('channelSpeeds', channelSpeeds);
+                    }
+                }
+            }
             break;
         case 'ENTER_PIP':
             enablePip();

@@ -1,5 +1,6 @@
 import { configRead } from '../config.js';
 import { showModal, buttonItem, overlayPanelItemListRenderer } from './ytUI.js';
+import getCurrentChannelId from "../getCurrentChannelId.js"
 
 const interval = setInterval(() => {
     const videoElement = document.querySelector('video');
@@ -11,7 +12,19 @@ const interval = setInterval(() => {
 
 function execute_once_dom_loaded_speed() {
     document.querySelector('video').addEventListener('canplay', () => {
-        document.getElementsByTagName('video')[0].playbackRate = configRead('videoSpeed');;
+        let speed = configRead('videoSpeed');
+
+        if (configRead('enablePerChannelSpeedPersistence')) {
+            const channelId = getCurrentChannelId();
+            if (channelId) {
+                const channelSpeeds = configRead('channelSpeeds') || {};
+                if (channelSpeeds[channelId]) {
+                    speed = channelSpeeds[channelId];
+                }
+            }
+        }
+
+        document.getElementsByTagName('video')[0].playbackRate = speed;
     });
 
     const eventHandler = (evt) => {
@@ -35,7 +48,18 @@ function execute_once_dom_loaded_speed() {
 }
 
 function speedSettings() {
-    const currentSpeed = configRead('videoSpeed');
+    let currentSpeed = configRead('videoSpeed');
+
+    if (configRead('enablePerChannelSpeedPersistence')) {
+        const channelId = getCurrentChannelId();
+        if (channelId) {
+            const channelSpeeds = configRead('channelSpeeds') || {};
+            if (channelSpeeds[channelId]) {
+                currentSpeed = channelSpeeds[channelId];
+            }
+        }
+    }
+
     let selectedIndex = 0;
     const maxSpeed = 5;
     const increment = configRead('speedSettingsIncrement') || 0.25;
@@ -114,5 +138,5 @@ function speedSettings() {
 }
 
 export {
-    speedSettings
+    speedSettings,
 }

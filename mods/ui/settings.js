@@ -485,6 +485,11 @@ export default function modernUI(update, parameters) {
             }
         },
         {
+            name: 'Per-channel speed persistence',
+            icon: 'SLOW_MOTION_VIDEO',
+            value: 'enablePerChannelSpeedPersistence'
+        },
+        {
             name: 'Preferred Video Codec',
             icon: 'VIDEO_QUALITY',
             value: null,
